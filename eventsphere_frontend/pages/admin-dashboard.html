@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — EventSphere</title>
+<link rel="icon" type="image/png" href="../assets/images/logo.png">
+<link rel="shortcut icon" href="../favicon.ico">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/dashboard.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body data-page="admin">
+
+<!-- Navbar -->
+<nav class="es-navbar">
+  <div class="container-fluid px-4 d-flex align-items-center justify-content-between">
+    
+    <!-- LEFT CORNER: Brand & Organizer Badge -->
+    <div class="d-flex align-items-center gap-2">
+      <a href="../index.html" class="brand text-decoration-none d-flex align-items-center">
+        <img src="../assets/images/logo.png" alt="EventSphere Logo" class="brand-logo me-2">EventSphere
+      </a>
+      <span class="pill-badge pill-lavender ms-1">Admin</span>
+    </div>
+
+    <!-- RIGHT CORNER: Search & Dynamic Auth Slot (Profile Avatar) -->
+    <div class="d-flex align-items-center gap-2 ms-auto">
+      <!-- Search Button -->
+      <button class="icon-btn d-none d-sm-inline-flex" title="Search">
+        <i class="bi bi-search"></i>
+      </button>
+
+      <!-- Dynamic Slot: nav.js renders Profile Avatar here -->
+      <div id="navAuthSlot" class="d-flex align-items-center gap-2"></div>
+    </div>
+
+  </div>
+</nav>
+
+<div class="dash-shell">
+  <aside class="es-sidebar">
+    <div class="side-link active" data-section="dashboard"><i class="bi bi-grid"></i> Dashboard</div>
+    <div class="side-link" data-section="users"><i class="bi bi-people"></i> Users</div>
+    <div class="side-link" data-section="organizers"><i class="bi bi-briefcase"></i> Organizers</div>
+    <div class="side-link" data-section="events"><i class="bi bi-calendar-event"></i> Events</div>
+    <div class="side-link" data-section="attendees"><i class="bi bi-person-lines-fill"></i> Attendees</div>
+    <div class="side-link" data-section="categories"><i class="bi bi-tags"></i> Categories</div>
+    <div class="side-link" data-section="settings"><i class="bi bi-gear"></i> Settings</div>
+  </aside>
+
+  <main class="dash-main">
+
+    <!-- Dashboard Executive Overview Section -->
+    <section id="sec-dashboard">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="mb-0">Platform Overview & Analytics</h2>
+          <p class="text-muted-soft small mb-0">Live performance metrics, revenue intelligence, and top event leaderboards</p>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <button class="btn btn-quiet btn-sm" onclick="loadDashboardAnalytics()">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh Metrics
+          </button>
+          <a href="create-event.html" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> Create Event
+          </a>
+        </div>
+      </div>
+
+      <!-- Key Metrics Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="stat-icon mb-2" style="background:var(--powder-blue-soft);">💰</div>
+            <div class="label">Total Platform Revenue</div>
+            <div class="value" id="dashTotalRevenue">LKR 0</div>
+            <div class="delta up" id="dashRevenueSub">Live Gross Sales (GMV)</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="stat-icon mb-2" style="background:var(--sage-soft);">🎟️</div>
+            <div class="label">Total Tickets Sold</div>
+            <div class="value" id="dashTotalTickets">0</div>
+            <div class="delta up" id="dashTicketsSub">Across all events</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="stat-icon mb-2" style="background:var(--lavender-soft);">🏢</div>
+            <div class="label">Organizers</div>
+            <div class="value" id="dashTotalOrganizers">0</div>
+            <div class="delta" id="dashOrganizersSub" style="color:var(--dusty-rose-dark);">0 Pending Review</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="stat-icon mb-2" style="background:var(--blush-soft);">👥</div>
+            <div class="label">Registered Users</div>
+            <div class="value" id="dashTotalUsers">0</div>
+            <div class="delta up" id="dashUsersSub">Platform Accounts</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Alert Banner -->
+      <div class="border p-3 rounded-3 mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2" id="pendingKycBanner" style="background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.25) !important;">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-shield-exclamation fs-3 text-warning"></i>
+          <div>
+            <strong class="text-white">Organizer KYC Verification Queue</strong>
+            <div class="small text-muted-soft" id="pendingKycBannerText">Checking pending organizer submissions...</div>
+          </div>
+        </div>
+        <button class="btn btn-quiet btn-sm" onclick="switchSection('organizers'); filterOrganizersByStatus('PENDING');">
+          Review KYC Applications <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+
+      <!-- Top Events & Organizers Leaderboards -->
+      <div class="row g-4 mb-4">
+        <!-- Top Performing Events (Most Attended & Highest Income) -->
+        <div class="col-lg-7">
+          <div class="table-card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+              <div>
+                <h5 class="fw-bold mb-0 text-white"><i class="bi bi-trophy me-1 text-warning"></i> Top Performing Events</h5>
+                <span class="text-muted-soft small">Ranked by attendance volume and ticket revenue</span>
+              </div>
+              <button class="btn btn-quiet btn-sm" onclick="switchSection('events')">All Events</button>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="es-table mb-0">
+                <thead>
+                  <tr>
+                    <th>Event & Organizer</th>
+                    <th>Tickets Sold</th>
+                    <th>Gross Income</th>
+                    <th class="text-end">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="dashTopEventsBody">
+                  <tr><td colspan="4" class="text-center text-muted-soft py-4"><i class="bi bi-arrow-repeat spin"></i> Calculating event rankings...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Organizers Leaderboard -->
+        <div class="col-lg-5">
+          <div class="table-card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+              <div>
+                <h5 class="fw-bold mb-0 text-white"><i class="bi bi-award me-1" style="color: var(--neon-cyan);"></i> Top Organizers</h5>
+                <span class="text-muted-soft small">Ranked by total revenue generated</span>
+              </div>
+              <button class="btn btn-quiet btn-sm" onclick="switchSection('organizers')">All Organizers</button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="es-table mb-0">
+                <thead>
+                  <tr>
+                    <th>Organizer</th>
+                    <th>Events</th>
+                    <th>Total Revenue</th>
+                  </tr>
+                </thead>
+                <tbody id="dashTopOrganizersBody">
+                  <tr><td colspan="3" class="text-center text-muted-soft py-4"><i class="bi bi-arrow-repeat spin"></i> Calculating organizer stats...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories & Activity Distribution -->
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <div class="chart-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="chart-title">Revenue & Booking Velocity</div>
+              <span class="badge" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #D1D5DB;">Recent Months</span>
+            </div>
+            <div class="text-muted-soft" style="font-size:0.8rem;">Platform monthly gross ticket revenue trajectory</div>
+            <div class="bar-chart mt-3" id="dashRevenueChartBars">
+              <div class="bar sage" style="height:45%;"><span class="bar-label">Mar</span></div>
+              <div class="bar sage" style="height:60%;"><span class="bar-label">Apr</span></div>
+              <div class="bar sage" style="height:55%;"><span class="bar-label">May</span></div>
+              <div class="bar sage" style="height:75%;"><span class="bar-label">Jun</span></div>
+              <div class="bar sage" style="height:85%;"><span class="bar-label">Jul</span></div>
+              <div class="bar" style="height:95%;"><span class="bar-label">Aug</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="chart-card h-100">
+            <div class="chart-title mb-2">Popular Event Categories</div>
+            <p class="text-muted-soft small mb-3">Live events distributed across platform categories</p>
+            <div class="d-flex flex-column gap-2" id="dashCategoriesBreakdown">
+              <div class="text-muted-soft small">Loading categories...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="sec-users" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="mb-0">Users</h2>
+          <p class="text-muted-soft small mb-0">Manage registered platform accounts and role permissions</p>
+        </div>
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+          <input class="form-control" id="adminUserSearch" placeholder="Search users by name, email, phone..." style="max-width:260px;">
+          <button class="btn btn-quiet btn-sm" onclick="loadUsers()">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- User Role Filter Tabs -->
+      <div class="d-flex gap-2 mb-3 flex-wrap" id="userRoleFilterTabs">
+        <button class="filter-pill active" onclick="filterUsersByRole('ALL', this)">
+          All <span class="badge bg-secondary ms-1" id="countAllUsers">0</span>
+        </button>
+        <button class="filter-pill" onclick="filterUsersByRole('USER', this)">
+          Normal Users <span class="badge ms-1" style="background: rgba(255,255,255,0.1); color: #FFF;" id="countNormalUsers">0</span>
+        </button>
+        <button class="filter-pill" onclick="filterUsersByRole('ORGANIZER', this)">
+          Organizers <span class="badge bg-success ms-1" id="countOrganizerUsers">0</span>
+        </button>
+        <button class="filter-pill" onclick="filterUsersByRole('ADMIN', this)">
+          Admins <span class="badge bg-primary ms-1" id="countAdminUsers">0</span>
+        </button>
+      </div>
+
+      <div class="table-card">
+        <table class="es-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Registered</th>
+              <th class="text-end" style="width:50px;"></th>
+            </tr>
+          </thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Organizers Section (Admin Verification & KYC) -->
+    <section id="sec-organizers" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="mb-0">Organizers & Verification (KYC)</h2>
+          <p class="text-muted-soft small mb-0">Review identity documents, manage approved organizers, and track all applications</p>
+        </div>
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+          <input class="form-control" id="adminOrgSearch" placeholder="Search by entity, name, email, NIC..." style="max-width:260px;">
+          <button class="btn btn-quiet btn-sm" onclick="loadAllOrganizers()">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Status Filter Tabs -->
+      <div class="d-flex gap-2 mb-3 flex-wrap" id="orgFilterTabs">
+        <button class="filter-pill active" onclick="filterOrganizersByStatus('ALL', this)">
+          All <span class="badge bg-secondary ms-1" id="countAllOrgs">0</span>
+        </button>
+        <button class="filter-pill" onclick="filterOrganizersByStatus('PENDING', this)">
+          Pending Review <span class="badge bg-warning text-dark ms-1" id="countPendingOrgs">0</span>
+        </button>
+        <button class="filter-pill" onclick="filterOrganizersByStatus('APPROVED', this)">
+          Approved <span class="badge bg-success ms-1" id="countApprovedOrgs">0</span>
+        </button>
+        <button class="filter-pill" onclick="filterOrganizersByStatus('REJECTED', this)">
+          Rejected <span class="badge bg-danger ms-1" id="countRejectedOrgs">0</span>
+        </button>
+      </div>
+
+      <div class="table-card">
+        <table class="es-table">
+          <thead>
+            <tr>
+              <th>Business Entity</th>
+              <th>Applicant & Contact</th>
+              <th>Verification (NIC / BRN)</th>
+              <th>Submitted</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="organizersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- All Events Section (Admin Overview & Moderation) -->
+    <section id="sec-events" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="mb-0">All Events</h2>
+          <p class="text-muted-soft small mb-0">Browse, moderate, inspect attendees, and manage platform events.</p>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <input class="form-control" id="adminEventSearch" placeholder="Search events by title..." style="max-width:220px;">
+          <a href="create-event.html" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i> Create Event</a>
+        </div>
+      </div>
+      <div class="table-card">
+        <table class="es-table">
+          <thead>
+            <tr>
+              <th>Event Title</th>
+              <th>Organizer</th>
+              <th>Category</th>
+              <th>Date & Time</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="eventsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Attendees & Bookings Section (Platform-wide) -->
+    <section id="sec-attendees" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="mb-0">Platform Attendees & Bookings</h2>
+          <p class="text-muted-soft small mb-0">Monitor ticket sales, guest registrations, and check-in statuses across all events</p>
+        </div>
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+          <select class="form-select" id="adminAttendeeEventFilter" style="max-width:210px;" onchange="filterAttendeesByEvent(this.value)">
+            <option value="ALL">All Events</option>
+          </select>
+          <input class="form-control" id="adminAttendeeSearch" placeholder="Search attendee, email, ref..." style="max-width:240px;">
+          <button class="btn btn-quiet btn-sm" onclick="loadAllAttendees()">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Booking Status Filter Tabs -->
+      <div class="d-flex gap-2 mb-3 flex-wrap" id="attendeeStatusFilterTabs">
+        <button class="filter-pill active" onclick="filterAttendeesByStatus('ALL', this)">
+          All <span class="badge bg-secondary ms-1" id="countAllAttendees">0</span>
+        </button>
+        <button class="filter-pill" onclick="filterAttendeesByStatus('CONFIRMED', this)">
+          Confirmed <span class="badge bg-success ms-1" id="countConfirmedAttendees">0</span>
+        </button>
+        <button class="filter-pill" onclick="filterAttendeesByStatus('PENDING', this)">
+          Pending <span class="badge bg-warning text-dark ms-1" id="countPendingAttendees">0</span>
+        </button>
+        <button class="filter-pill" onclick="filterAttendeesByStatus('CANCELLED', this)">
+          Cancelled <span class="badge bg-danger ms-1" id="countCancelledAttendees">0</span>
+        </button>
+      </div>
+
+      <div class="table-card">
+        <table class="es-table">
+          <thead>
+            <tr>
+              <th>Attendee & Contact</th>
+              <th>Event & Organizer</th>
+              <th>Booking Ref</th>
+              <th>Tickets & Type</th>
+              <th>Total Paid</th>
+              <th>Booking Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="allAttendeesBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="sec-categories" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Categories</h2>
+        <button class="btn btn-primary btn-sm" id="addCategoryBtn"><i class="bi bi-plus-lg"></i> Add Category</button>
+      </div>
+      <div class="row g-3" id="categoriesGrid"></div>
+    </section>
+
+    <!-- Settings & Admin Profile Section -->
+    <section id="sec-settings" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="mb-0">Settings & Admin Profile</h2>
+          <p class="text-muted-soft small mb-0">Manage administrator account credentials, security, and developer engineering contacts</p>
+        </div>
+        <div>
+          <span class="status-badge status-confirmed"><i class="bi bi-shield-check me-1"></i> Super Admin</span>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- Card 1 & 2: Administrator Profile & Password Management -->
+        <div class="col-lg-7">
+          
+          <!-- Admin Profile Card -->
+          <div class="filter-bar p-4 mb-4">
+            <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+              <i class="bi bi-person-gear fs-4 text-primary"></i>
+              <h5 class="fw-bold mb-0 text-white">Administrator Details</h5>
+            </div>
+
+            <form id="adminProfileForm" class="d-flex flex-column gap-3">
+              <div>
+                <label class="form-label fw-semibold small text-white">Full Name <span class="text-danger">*</span></label>
+                <input class="form-control" name="fullName" id="adminInputFullName" required placeholder="Administrator Full Name">
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small text-white">Email Address <span class="text-danger">*</span></label>
+                  <input class="form-control" type="email" name="email" id="adminInputEmail" required placeholder="admin@example.com">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small text-white">Contact Phone Number <span class="text-danger">*</span></label>
+                  <input class="form-control" type="tel" name="phoneNumber" id="adminInputPhone" placeholder="e.g. 0719217125">
+                </div>
+              </div>
+
+              <div class="pt-2">
+                <button type="submit" class="btn btn-primary px-4" id="saveAdminProfileBtn">
+                  <i class="bi bi-check2 me-1"></i> Save Profile Changes
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Password Management Card -->
+          <div class="filter-bar p-4">
+            <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+              <i class="bi bi-shield-lock fs-4 text-primary"></i>
+              <h5 class="fw-bold mb-0 text-white">Change Password</h5>
+            </div>
+
+            <form id="adminPasswordForm" class="d-flex flex-column gap-3">
+              <div>
+                <label class="form-label fw-semibold small text-white">Current Password <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input class="form-control" type="password" name="currentPassword" id="adminCurrentPassInput" required placeholder="Enter current password">
+                  <button class="btn btn-outline-soft" type="button" onclick="toggleAdminPassVisibility('adminCurrentPassInput', this)">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small text-white">New Password <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input class="form-control" type="password" name="newPassword" id="adminNewPassInput" required minlength="6" placeholder="Min 6 characters">
+                    <button class="btn btn-outline-soft" type="button" onclick="toggleAdminPassVisibility('adminNewPassInput', this)">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small text-white">Confirm New Password <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input class="form-control" type="password" name="confirmPassword" id="adminConfirmPassInput" required minlength="6" placeholder="Repeat new password">
+                    <button class="btn btn-outline-soft" type="button" onclick="toggleAdminPassVisibility('adminConfirmPassInput', this)">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="alert alert-dark border small text-muted-soft mb-0 py-2" style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08) !important;">
+                <i class="bi bi-info-circle me-1 text-primary"></i> Passwords must be at least 6 characters long and match.
+              </div>
+
+              <div class="pt-2">
+                <button type="submit" class="btn btn-primary px-4" id="saveAdminPassBtn">
+                  <i class="bi bi-key me-1"></i> Update Password
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+        <!-- Card 3: Developer & Engineering Support -->
+        <div class="col-lg-5">
+          <div class="filter-bar p-4 h-100">
+            <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+              <i class="bi bi-code-slash fs-4 text-primary"></i>
+              <h5 class="fw-bold mb-0 text-white">Developer & System Credits</h5>
+            </div>
+
+            <div class="text-center py-3 mb-3 rounded-4" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+              <div class="avatar-circle mx-auto mb-2" style="width:64px; height:64px; font-size:1.35rem; background: var(--grad-primary); color: #fff;">
+                LS
+              </div>
+              <h5 class="fw-bold text-white mb-0">Lasandi Salwathura</h5>
+              <span class="pill-badge pill-lavender mt-1">Lead Software Engineer</span>
+            </div>
+
+            <div class="d-flex flex-column gap-3">
+              <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+                <span class="text-muted-soft small d-block mb-1"><i class="bi bi-envelope me-1 text-primary"></i> Developer Contact Email</span>
+                <a href="mailto:lasandisalwathura@gmail.com" class="fw-semibold text-white text-decoration-none">
+                  lasandisalwathura@gmail.com
+                </a>
+              </div>
+
+              <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+                <span class="text-muted-soft small d-block mb-1"><i class="bi bi-telephone me-1 text-success"></i> Direct Phone / WhatsApp</span>
+                <a href="tel:0719217125" class="fw-semibold text-white text-decoration-none">
+                  0719217125
+                </a>
+              </div>
+
+              <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+                <span class="text-muted-soft small d-block mb-1"><i class="bi bi-mortarboard me-1 text-primary"></i> Academic & Coursework Project</span>
+                <div class="small fw-semibold text-white">Institute of Java and Software Engineering (IJSE)</div>
+                <div class="small text-muted-soft">ITS 1114 – Advanced API Development</div>
+              </div>
+
+              <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+                <span class="text-muted-soft small d-block mb-1"><i class="bi bi-layers me-1 text-warning"></i> Platform Tech Stack</span>
+                <div class="small text-white">Spring Boot 3 + Spring Security JWT + Cloudinary + PayHere Gateway</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Models -->
+
+<!-- Category Add / Edit Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="categoryModalLabel">Add New Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="categoryForm">
+        <div class="modal-body">
+          <input type="hidden" id="categoryId">
+          <div class="mb-3">
+            <label for="categoryName" class="form-label">Category Name</label>
+            <input type="text" class="form-control" id="categoryName" placeholder="e.g., Music, Tech, Sports" required>
+          </div>
+          <div class="mb-3">
+            <label for="categoryIcon" class="form-label">Icon / Emoji</label>
+            <input type="text" class="form-control" id="categoryIcon" placeholder="e.g., 🎵, 💻, ⚽">
+          </div>
+          <div class="mb-3">
+            <label for="categoryDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="categoryDescription" rows="3" placeholder="Brief description of the category"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveCategoryBtn">Save Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Organizer KYC Review Modal -->
+<!-- Organizer KYC Review Modal -->
+<div class="modal fade" id="reviewOrganizerModal" tabindex="-1" aria-labelledby="reviewOrganizerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content shadow-lg border-0" style="border-radius: 20px;">
+      <div class="modal-header border-bottom pb-3">
+        <div class="d-flex align-items-center gap-2">
+          <span class="fs-3">📋</span>
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="reviewOrgBusiness">Business Name</h5>
+            <span class="text-muted-soft small">Organizer KYC Verification Application</span>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body py-4">
+        <input type="hidden" id="reviewOrgId">
+
+        <!-- Status & Submitted Banner -->
+        <div class="d-flex justify-content-between align-items-center p-3 rounded-3 mb-4" style="background:var(--cream-bg, #faf8f5); border:1px solid var(--line);">
+          <div>
+            <span class="text-muted-soft small d-block">Application Status</span>
+            <span class="status-badge status-pending mt-1" id="reviewOrgStatus">Pending Review</span>
+          </div>
+          <div class="text-end">
+            <span class="text-muted-soft small d-block">Submitted Timestamp</span>
+            <span class="small fw-semibold text-white" id="reviewOrgDate">—</span>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <!-- Applicant & Contact Info -->
+          <div class="col-md-6">
+            <div class="p-3 rounded-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.04);">
+              <h6 class="fw-bold text-white mb-3"><i class="bi bi-person-badge me-1 text-primary"></i> Applicant Information</h6>
+              <div class="mb-2">
+                <span class="text-muted-soft small d-block">Full Name</span>
+                <strong class="text-white" id="reviewOrgApplicant">—</strong>
+              </div>
+              <div class="mb-2">
+                <span class="text-muted-soft small d-block">Email Address</span>
+                <span class="text-white" id="reviewOrgEmail">—</span>
+              </div>
+              <div>
+                <span class="text-muted-soft small d-block">Phone Number</span>
+                <span class="text-white" id="reviewOrgPhone">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Legal & Verification Info -->
+          <div class="col-md-6">
+            <div class="p-3 rounded-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.04);">
+              <h6 class="fw-bold text-white mb-3"><i class="bi bi-shield-check me-1 text-success"></i> Verification & KYC</h6>
+              <div class="mb-2">
+                <span class="text-muted-soft small d-block">NIC / Passport Number</span>
+                <code class="fw-bold fs-6" id="reviewOrgNic">—</code>
+              </div>
+              <div>
+                <span class="text-muted-soft small d-block">Business Registration No. (BRN)</span>
+                <code id="reviewOrgRegNo">None provided</code>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bio / Event Plans -->
+          <div class="col-12">
+            <div class="p-3 rounded-3" style="border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.04);">
+              <h6 class="fw-bold text-white mb-2"><i class="bi bi-card-text me-1 text-primary"></i> About Events / Bio</h6>
+              <p class="text-white mb-0 small" id="reviewOrgBio" style="white-space: pre-wrap;">—</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-top d-flex justify-content-between">
+        <button type="button" class="btn btn-outline-danger btn-sm" id="modalRejectOrgBtn">
+          <i class="bi bi-x-circle me-1"></i> Reject Application
+        </button>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary btn-sm px-3" id="modalApproveOrgBtn">
+            <i class="bi bi-check2-circle me-1"></i> Approve Organizer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Event Attendees Modal -->
+<div class="modal fade" id="adminEventAttendeesModal" tabindex="-1" aria-labelledby="adminEventAttendeesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content shadow-lg border-0" style="border-radius: 20px;">
+      <div class="modal-header border-bottom pb-3">
+        <div class="d-flex align-items-center gap-2">
+          <span class="fs-3">🎟️</span>
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="attModalEventTitle">Event Attendees & Bookings</h5>
+            <span class="text-muted-soft small" id="attModalSummary">Loading registered attendees...</span>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body py-4">
+        <div class="table-responsive">
+          <table class="es-table mb-0">
+            <thead>
+              <tr>
+                <th>Booking Ref</th>
+                <th>Attendee & Contact</th>
+                <th>Tickets & Type</th>
+                <th>Total Paid</th>
+                <th>Booking Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="attModalTableBody">
+              <tr><td colspan="6" class="text-center text-muted-soft py-4"><i class="bi bi-arrow-repeat spin"></i> Loading bookings...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer border-top">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Edit Event Modal -->
+<div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header border-bottom">
+        <div>
+          <h5 class="modal-title fw-bold" id="editEventModalLabel">Edit Event</h5>
+          <span class="text-muted-soft small">Update event details and schedule</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="editEventForm">
+        <div class="modal-body p-4">
+          <input type="hidden" id="adminEditEventId">
+          
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="adminEditEventTitle" class="form-label fw-semibold small">Event Title <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="adminEditEventTitle" required placeholder="e.g. Golden Hour Acoustic Night">
+            </div>
+
+            <div class="col-md-6">
+              <label for="adminEditEventCategory" class="form-label fw-semibold small">Category <span class="text-danger">*</span></label>
+              <select class="form-select" id="adminEditEventCategory" required>
+                <option value="">Select Category</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label for="adminEditEventVenue" class="form-label fw-semibold small">Venue <span class="text-danger">*</span></label>
+              <select class="form-select" id="adminEditEventVenue" required>
+                <option value="">Select Venue</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label for="adminEditEventDate" class="form-label fw-semibold small">Date <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="adminEditEventDate" required>
+            </div>
+
+            <div class="col-md-4">
+              <label for="adminEditEventStartTime" class="form-label fw-semibold small">Start Time <span class="text-danger">*</span></label>
+              <input type="time" class="form-control" id="adminEditEventStartTime" required>
+            </div>
+
+            <div class="col-md-4">
+              <label for="adminEditEventEndTime" class="form-label fw-semibold small">End Time <span class="text-danger">*</span></label>
+              <input type="time" class="form-control" id="adminEditEventEndTime" required>
+            </div>
+
+            <div class="col-12">
+              <label for="adminEditEventDescription" class="form-label fw-semibold small">Description</label>
+              <textarea class="form-control" id="adminEditEventDescription" rows="3" placeholder="What should attendees expect?"></textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold small">Banner Image</label>
+              <div class="input-group mb-2">
+                <input type="url" class="form-control" id="adminEditEventBanner" placeholder="Paste image URL (https://...)">
+                <button class="btn btn-outline-soft" type="button" id="adminPreviewBannerBtn">Preview</button>
+              </div>
+              <div class="mb-2">
+                <label for="adminEditEventFileInput" class="form-label text-muted-soft small mb-1">Or choose photo from device to upload:</label>
+                <input class="form-control" type="file" id="adminEditEventFileInput" accept="image/*">
+              </div>
+              <div id="adminBannerPreviewWrap" class="mt-2"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-top d-flex justify-content-between">
+          <div>
+            <button type="button" class="btn btn-outline-danger btn-sm" id="adminCancelEventBtn" title="Cancel this event">
+              <i class="bi bi-x-circle me-1"></i> Cancel Event
+            </button>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary btn-sm" id="adminSaveEventBtn">
+              <i class="bi bi-check2 me-1"></i> Save Changes
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/env.js"></script>
+<script src="../js/api/config.js"></script>
+<script src="../js/api/auth.js"></script>
+<script src="../js/api/events.js"></script>
+<script src="../js/api/organizer.js"></script>
+<script src="../js/utils/icons.js"></script>
+<script src="../js/utils/toast.js"></script>
+<script src="../js/utils/nav.js"></script>
+<!-- Modular Admin Architecture Scripts -->
+<script src="../js/admin/admin-users.js"></script>
+<script src="../js/admin/admin-organizers.js"></script>
+<script src="../js/admin/admin-events.js"></script>
+<script src="../js/admin/admin-categories.js"></script>
+<script src="../js/admin/admin-attendees.js"></script>
+<script src="../js/admin/admin-settings.js"></script>
+<script src="../js/admin/admin-analytics.js"></script>
+<script src="../js/admin/admin-dashboard.js"></script>
+</body>
+</html>

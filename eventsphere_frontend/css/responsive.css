@@ -1,0 +1,480 @@
+/* =========================================================
+   EventSphere — Master Responsive Stylesheet
+   Tailored for Smartphones, Foldables, Tablets & Desktops
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   1. TABLETS & SMALL LAPTOPS (max-width: 991.98px)
+   --------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  h1 { font-size: clamp(2rem, 5vw, 2.6rem); }
+  h2 { font-size: clamp(1.6rem, 4vw, 2rem); }
+  
+  /* Navbar Mobile Drawer */
+  .es-navbar {
+    padding: 0.75rem 0;
+  }
+  .es-navbar .container,
+  .es-navbar .container-narrow,
+  .es-navbar .container-fluid {
+    position: relative;
+  }
+  .es-navbar .navbar-toggler {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0.6rem;
+    line-height: 1;
+    transition: background 0.2s ease;
+  }
+  .es-navbar .navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(255, 46, 116, 0.3);
+  }
+  .es-navbar .navbar-collapse {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    left: 1rem;
+    right: 1rem;
+    background: rgba(14, 18, 28, 0.97);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.65);
+    z-index: 1050;
+  }
+  .es-navbar .navbar-nav {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+    width: 100%;
+    margin: 0 !important;
+  }
+  .es-navbar .navbar-nav .nav-link {
+    width: 100%;
+    padding: 0.7rem 1rem !important;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+  }
+  .es-navbar .navbar-nav .nav-link:hover,
+  .es-navbar .navbar-nav .nav-link.active {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  /* Dashboard Shell & Sidebar (Horizontal Sticky Tab Bar on Tablet & Mobile) */
+  .dash-shell {
+    flex-direction: column !important;
+    min-height: auto !important;
+  }
+  .es-sidebar {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: auto !important;
+    align-self: stretch !important;
+    position: sticky !important;
+    top: 56px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    gap: 0.5rem !important;
+    padding: 0.65rem 1rem !important;
+    background: rgba(14, 18, 28, 0.96) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    scrollbar-width: none;
+    z-index: 995;
+  }
+  .es-sidebar::-webkit-scrollbar {
+    display: none;
+  }
+  .es-sidebar .side-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    height: auto !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    margin-bottom: 0 !important;
+    padding: 0.5rem 0.95rem !important;
+    font-size: 0.85rem !important;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+  }
+  .dash-main {
+    padding: 1.25rem 1rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .table-card {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Auth Visual Split */
+  .auth-split { min-height: 100vh; }
+  .auth-visual { display: none !important; }
+  .auth-form-side {
+    width: 100% !important;
+    padding: 3rem 1.5rem !important;
+    justify-content: center;
+  }
+
+  /* Summary Card in Booking */
+  .summary-card {
+    position: static !important;
+    margin-top: 1.5rem;
+  }
+}
+
+/* ---------------------------------------------------------
+   2. MOBILE PHONES & PHABLETS (max-width: 767.98px)
+   --------------------------------------------------------- */
+@media (max-width: 767.98px) {
+  /* Global Typography & Layout */
+  body {
+    font-size: 0.95rem;
+  }
+  .section { padding: 2.5rem 0; }
+  .section-sm { padding: 1.75rem 0; }
+  .container-narrow, .container {
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
+  }
+
+  /* Prevent iOS Safari auto-zoom on input focus (requires 16px minimum) */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Hero Section */
+  .hero {
+    padding: 2.5rem 0 2rem;
+    text-align: left;
+  }
+  .hero .headline {
+    font-size: clamp(2rem, 8vw, 2.75rem);
+    line-height: 1.15;
+  }
+  .hero .sub {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .hero-search {
+    flex-direction: column;
+    padding: 0.5rem;
+    background: rgba(18, 22, 34, 0.9);
+    border-radius: var(--radius-lg);
+    gap: 0.5rem;
+  }
+  .hero-search input {
+    width: 100%;
+    padding: 0.75rem 0.5rem;
+  }
+  .hero-search button {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem;
+  }
+  .hero-visual-card {
+    margin-top: 1.5rem;
+  }
+
+  /* Category Filter Pills (Smooth Mobile Horizontal Carousel) */
+  #categoryFilterBar,
+  .filter-pill-container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.6rem !important;
+    scrollbar-width: none;
+  }
+  #categoryFilterBar::-webkit-scrollbar { display: none; }
+  .filter-pill {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  /* My Bookings Card Transformation (Vertical on Mobile) */
+  .event-card.flex-row {
+    flex-direction: column !important;
+    min-height: auto !important;
+  }
+  .event-card.flex-row .img-wrap {
+    width: 100% !important;
+    min-width: 100% !important;
+    height: 160px !important;
+  }
+  .event-card.flex-row .body {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+    padding: 1.25rem !important;
+  }
+  .event-card.flex-row .body > div:last-child {
+    width: 100%;
+    display: flex;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .event-card.flex-row .body > div:last-child .btn {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+
+  /* Booking Step Indicator */
+  .step-indicator {
+    padding: 0.75rem 0.5rem;
+    justify-content: space-between;
+    width: 100%;
+    overflow-x: auto;
+  }
+  .step-indicator .step .circle {
+    width: 32px;
+    height: 32px;
+    font-size: 0.82rem;
+  }
+  .step-indicator .step .label {
+    display: none !important;
+  }
+  .step-indicator .connector {
+    flex: 1;
+    min-width: 12px;
+    margin: 0 4px;
+  }
+
+  /* Ticket Selection Rows in Booking Step 1 */
+  .ticket-type-card,
+  .ticket-select-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.75rem;
+    padding: 1rem !important;
+  }
+  .ticket-select-row .qty-stepper {
+    align-self: flex-end;
+  }
+
+  /* Tables Responsive Card Transformation */
+  .es-table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Stats Cards Grid */
+  .stat-card {
+    padding: 1.1rem !important;
+  }
+  .stat-card .value {
+    font-size: 1.5rem !important;
+  }
+
+  /* Dashboard Adjustments on Mobile Phones */
+  .es-sidebar {
+    top: 56px !important;
+    padding: 0.5rem 0.75rem !important;
+    gap: 0.4rem !important;
+  }
+  .es-sidebar .side-link {
+    padding: 0.45rem 0.8rem !important;
+    font-size: 0.82rem !important;
+    gap: 0.45rem !important;
+  }
+  .dash-main {
+    padding: 1rem 0.75rem !important;
+  }
+  .chart-card {
+    padding: 1.1rem 0.9rem !important;
+  }
+  .bar-chart {
+    height: 140px !important;
+    gap: 0.4rem !important;
+    margin-top: 1rem !important;
+    padding-top: 1.5rem !important;
+  }
+  .bar-chart .bar .bar-label {
+    font-size: 0.68rem !important;
+    bottom: -20px !important;
+  }
+
+  /* AI Floating Assistant Drawer on Mobile */
+  .ai-fab {
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    width: 52px;
+    height: 52px;
+  }
+  .ai-panel {
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 82vh !important;
+    max-height: 82vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.75) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+  }
+
+  /* Event Details Hero Banner on Mobile */
+  .ratio-21x9 {
+    --bs-aspect-ratio: 56.25% !important; /* 16:9 ratio for richer mobile presentation */
+    max-height: 280px !important;
+    min-height: 200px !important;
+  }
+
+  /* Gate Check-In Scanner Frame on Mobile */
+  .scanner-frame {
+    width: 100% !important;
+    max-width: 340px !important;
+    aspect-ratio: 1 / 1 !important;
+    max-height: 50vh !important;
+    margin: 0 auto 1rem !important;
+    border-radius: 16px !important;
+  }
+
+  /* Digital Admission Ticket Mobile Refinements */
+  .digital-ticket {
+    width: 100% !important;
+    border-radius: 16px !important;
+  }
+  .digital-ticket .tk-event {
+    font-size: clamp(1.2rem, 4.5vw, 1.45rem) !important;
+    word-break: break-word;
+    margin-bottom: 0.75rem;
+  }
+  .tk-main-info {
+    padding: 1.25rem 1rem !important;
+  }
+  .tk-meta-grid {
+    gap: 0.6rem 0.85rem !important;
+  }
+  .tk-meta-item b {
+    font-size: 0.88rem !important;
+  }
+  .tk-qr-stub {
+    padding: 1.25rem 1rem !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+  }
+  .qr-img-box img {
+    max-width: 130px !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+  }
+
+  /* Modals on Mobile */
+  .modal-dialog {
+    margin: 0.75rem auto !important;
+    max-width: calc(100% - 1.5rem) !important;
+  }
+  .modal-cyber {
+    border-radius: 16px !important;
+  }
+  .otp-code-input {
+    letter-spacing: clamp(3px, 1.5vw, 6px) !important;
+    font-size: 1.15rem !important;
+  }
+
+  /* Footer */
+  .es-footer { 
+    padding: 3rem 0 calc(1.5rem + env(safe-area-inset-bottom, 0px)); 
+  }
+  .es-footer .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}
+
+/* ---------------------------------------------------------
+   3. EXTRA SMALL SCREENS & COMPACT PHONES (max-width: 479.98px)
+   --------------------------------------------------------- */
+@media (max-width: 479.98px) {
+  .es-navbar .brand {
+    font-size: 1.2rem;
+  }
+  .es-navbar .brand .sparkle {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+  .btn-lg {
+    padding: 0.7rem 1.1rem;
+    font-size: 0.92rem;
+  }
+  .filter-bar {
+    padding: 1rem !important;
+  }
+  .trending-chip {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.65rem;
+  }
+  .event-card .title {
+    font-size: 1.12rem;
+  }
+  .auth-form-side {
+    padding: 2rem 0.85rem !important;
+  }
+
+  /* Ticket Stacking on extra small phones */
+  .tk-meta-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* OTP Boxes sizing */
+  .otp-boxes {
+    gap: 0.25rem !important;
+  }
+  .otp-box {
+    width: clamp(36px, 12vw, 44px) !important;
+    height: clamp(44px, 14vw, 52px) !important;
+    font-size: 1.2rem !important;
+  }
+
+  /* Form actions full width on small screens */
+  .auth-card .btn,
+  .modal-cyber .btn {
+    width: 100%;
+  }
+}
+
+/* ---------------------------------------------------------
+   4. ULTRA-COMPACT & FOLDABLE OUTER SCREENS (max-width: 359.98px)
+   --------------------------------------------------------- */
+@media (max-width: 359.98px) {
+  .container-narrow, .container {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+  .tk-meta-grid {
+    grid-template-columns: 1fr !important; /* Stack cleanly on < 360px */
+  }
+  .tk-header {
+    font-size: 1rem !important;
+    padding: 0.6rem 1rem !important;
+  }
+  .status-badge {
+    font-size: 0.72rem !important;
+    padding: 0.25rem 0.6rem !important;
+  }
+}
+

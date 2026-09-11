@@ -1,0 +1,148 @@
+### 1. Admin Login (Aiven Cloud Backend)
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{admin_email}}",
+  "password": "{{admin_password}}"
+}
+
+> {%
+    if (response.status === 200 && response.body.data && response.body.data.token) {
+        client.global.set("auth_token", response.body.data.token);
+        client.log("Admin JWT Token captured successfully!");
+    }
+%}
+
+
+### 2. Register New User (Dispatches 6-digit OTP to email)
+POST {{host}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Lasandi Salwathura",
+  "email": "lasandi@example.com",
+  "password": "Password123!"
+}
+
+
+### 2a. Verify Email with OTP
+POST {{host}}/api/v1/auth/verify-otp
+Content-Type: application/json
+
+{
+  "email": "lasandi@example.com",
+  "otp": "123456"
+}
+
+> {%
+    if (response.status === 200 && response.body.data && response.body.data.token) {
+        client.global.set("user_token", response.body.data.token);
+        client.log("User verified and JWT Token captured successfully!");
+    }
+%}
+
+
+### 2b. Resend Verification OTP
+POST {{host}}/api/v1/auth/resend-otp
+Content-Type: application/json
+
+{
+  "email": "lasandi@example.com"
+}
+
+
+### 2c. Forgot Password (Request 6-digit Reset OTP)
+POST {{host}}/api/v1/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "lasandi@example.com"
+}
+
+
+### 2d. Reset Password with OTP
+POST {{host}}/api/v1/auth/reset-password
+Content-Type: application/json
+
+{
+  "email": "lasandi@example.com",
+  "otp": "123456",
+  "newPassword": "NewSecurePassword123!"
+}
+
+
+### 3. Normal User Login
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "lasandi@example.com",
+  "password": "Password123!"
+}
+
+> {%
+    if (response.status === 200 && response.body.data && response.body.data.token) {
+        client.global.set("user_token", response.body.data.token);
+        client.log("Normal User JWT Token captured successfully!");
+    }
+%}
+
+### =========================================================================
+### 4. Apply / Register as an Organizer (Requires User Token)
+### =========================================================================
+# Route: POST /api/v1/organizer/apply (or /api/v1/organizers/apply)
+# Converts/links the logged-in user account to an Organizer profile
+POST {{host}}/api/v1/organizers/apply
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "businessName": "Lasandi Events & Tech",
+  "bio": "Specialized in organizing tech conferences and software workshops."
+}
+
+> {%
+    client.test("Organizer profile created/applied", function() {
+        client.assert(response.status === 200 || response.status === 201, "Failed to apply as organizer");
+    });
+%}
+
+###
+
+### =========================================================================
+### 5. Organizer Login
+### =========================================================================
+# Route: POST /api/v1/auth/login
+# Logging in with the organizer's credentials returns the updated JWT with ORGANIZER role
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "lasandi@example.com",
+  "password": "Password123!"
+}
+
+> {%
+    if (response.status === 200 && response.body.data && response.body.data.token) {
+        client.global.set("organizer_token", response.body.data.token);
+        client.log("Organizer JWT Token captured successfully!");
+    }
+%}
+
+### Login as Kasun (User / Approved Organizer)
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "selinercel156@gmail.com",
+  "password": "Password123!"
+}
+
+> {%
+    if (response.status === 200 && response.body.data && response.body.data.token) {
+        client.global.set("user_token", response.body.data.token);
+        client.global.set("organizer_token", response.body.data.token);
+        client.log("Kasun's JWT Token captured successfully!");
+    }
+%}

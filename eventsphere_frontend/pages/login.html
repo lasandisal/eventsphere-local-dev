@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log in — EventSphere</title>
+<link rel="icon" type="image/png" href="../assets/images/logo.png">
+<link rel="shortcut icon" href="../favicon.ico">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body data-page="login">
+
+<div class="auth-shell">
+  <div class="auth-visual">
+    <div class="hero-blob" style="width:340px; height:340px; background: radial-gradient(circle, rgba(255,46,116,0.22) 0%, transparent 70%); top:8%; left:6%;"></div>
+    <div class="hero-blob" style="width:280px; height:280px; background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%); bottom:12%; right:10%;"></div>
+    <div class="auth-content">
+      <a href="../index.html" class="brand mb-4 d-inline-flex align-items-center gap-2 text-decoration-none" style="color:#FFF;">
+        <img src="../assets/images/logo.png" alt="EventSphere Logo" class="brand-logo me-1">
+        <span class="fw-bold fs-4 text-white">EventSphere</span>
+      </a>
+      <h2 class="text-white fw-bold mb-3" style="max-width:380px; font-size: 2.1rem; line-height: 1.25;">Welcome back to your next favourite memory.</h2>
+      <p class="text-muted-soft" style="max-width:340px; font-size: 0.92rem;">Access exclusive tickets, live bookings, and verified organizers all in one place.</p>
+    </div>
+  </div>
+  <div class="auth-form-side">
+    <div class="auth-card">
+      <p class="eyebrow">Log in</p>
+      <h2 class="mb-4 text-white">Good to see you again</h2>
+      <form id="loginForm" class="d-flex flex-column gap-3" novalidate>
+        <div>
+          <label class="form-label text-white" for="loginEmail">Email</label>
+          <input type="email" class="form-control" id="loginEmail" name="email" required placeholder="you@example.com">
+          <div class="invalid-feedback"></div>
+        </div>
+        <div>
+          <label class="form-label text-white" for="loginPassword">Password</label>
+          <div class="password-toggle-group">
+            <input type="password" class="form-control" id="loginPassword" name="password" required placeholder="••••••••">
+            <button type="button" class="password-toggle-btn" aria-label="Show password" title="Show password"></button>
+          </div>
+          <div class="invalid-feedback"></div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center" style="font-size:0.85rem;">
+          <label class="d-flex align-items-center gap-2 text-muted-soft"><input type="checkbox" checked class="form-check-input mt-0"> Remember me</label>
+          <a href="#" id="forgotPasswordBtn" class="text-decoration-none" style="color: var(--neon-cyan); cursor:pointer;">Forgot password?</a>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg mt-2">Log in</button>
+      </form>
+      <p class="text-center mt-4 text-muted-soft" style="font-size:0.88rem;">Don't have an account? <a href="register.html" id="registerLink" style="color: var(--neon-rose); font-weight:600;">Sign up</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- FORGOT PASSWORD & RESET OTP MODAL -->
+<!-- ========================================== -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-cyber">
+      <div class="modal-header">
+        <h5 class="modal-title text-white fw-bold" id="forgotPasswordModalLabel">
+          <i class="bi bi-shield-lock me-2 text-warning"></i>Reset Your Password
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <!-- Step 1: Request OTP -->
+        <div id="fpStep1">
+          <p class="text-muted-soft small mb-3">
+            Enter your registered email address and we'll send you a 6-digit verification code to reset your password.
+          </p>
+          <form id="fpRequestForm" novalidate>
+            <div class="mb-3">
+              <label class="form-label text-white small" for="fpEmail">Email Address</label>
+              <input type="email" class="form-control" id="fpEmail" required placeholder="you@example.com">
+              <div class="invalid-feedback"></div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2 mt-2" id="fpSendOtpBtn">
+              Send Reset Code
+            </button>
+          </form>
+        </div>
+
+        <!-- Step 2: Enter OTP & New Password -->
+        <div id="fpStep2" style="display: none;">
+          <div class="alert alert-info py-2 px-3 small mb-3 text-white border-0" style="background: rgba(13, 202, 240, 0.15);">
+            <i class="bi bi-envelope-check me-2"></i> Code sent to <strong id="fpTargetEmailDisplay"></strong>
+          </div>
+          <form id="fpResetForm" novalidate>
+            <div class="mb-3">
+              <label class="form-label text-white small" for="fpOtp">6-Digit Code</label>
+              <input type="text" maxlength="6" class="form-control otp-code-input" id="fpOtp" required placeholder="000000" autocomplete="one-time-code">
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-white small" for="fpNewPassword">New Password</label>
+              <div class="password-toggle-group">
+                <input type="password" class="form-control" id="fpNewPassword" required placeholder="At least 6 characters" minlength="6">
+                <button type="button" class="password-toggle-btn" aria-label="Show password" title="Show password"></button>
+              </div>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label text-white small" for="fpConfirmPassword">Confirm New Password</label>
+              <div class="password-toggle-group">
+                <input type="password" class="form-control" id="fpConfirmPassword" required placeholder="Re-type new password" minlength="6">
+                <button type="button" class="password-toggle-btn" aria-label="Show password" title="Show password"></button>
+              </div>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-outline-secondary flex-shrink-0" id="fpBackBtn">Back</button>
+              <button type="submit" class="btn btn-primary w-100" id="fpSubmitResetBtn">Reset Password</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/env.js"></script>
+<script src="../js/api/config.js"></script>
+<script src="../js/api/auth.js"></script>
+<script src="../js/utils/icons.js"></script>
+<script src="../js/utils/toast.js"></script>
+<script src="../js/utils/validation.js"></script>
+<script src="../js/utils/otp-modal.js"></script>
+<script>
+const brandSp = document.getElementById('brandSparkle');
+if (brandSp) brandSp.innerHTML = EsIcons.sparkle;
+EsValidation.initPasswordToggles(document.getElementById('loginForm'));
+EsValidation.attachLiveValidation(document.getElementById('loginForm'));
+
+// Check for email prefill from query parameter
+const urlParams = new URLSearchParams(window.location.search);
+const prefillEmail = urlParams.get('email');
+if (prefillEmail) {
+  const emailInp = document.getElementById('loginEmail');
+  if (emailInp) emailInp.value = decodeURIComponent(prefillEmail);
+}
+
+// -------------------------------------------------------------
+// Login Form Submission
+// -------------------------------------------------------------
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  EsValidation.clearFormErrors(form);
+
+  const emailInput = form.querySelector('[name="email"]');
+  const passwordInput = form.querySelector('[name="password"]');
+
+  let isValid = true;
+  if (!EsValidation.validateEmailField(emailInput)) isValid = false;
+  if (!EsValidation.validatePasswordField(passwordInput, 'Password')) isValid = false;
+
+  if (!isValid) {
+    esToast('Please fix the errors in the form.', 'error');
+    return;
+  }
+
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+  const btn = form.querySelector('button[type="submit"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Logging in...'; }
+
+  try {
+    const authData = await AuthAPI.login({ email, password });
+    esToast('Welcome back!');
+    const redirectUrl = urlParams.get('redirect');
+    setTimeout(() => {
+      if (redirectUrl) {
+        window.location.href = decodeURIComponent(redirectUrl);
+      } else {
+        if (EsAuthStore.hasRole('ADMIN')) window.location.href = 'admin-dashboard.html';
+        else if (EsAuthStore.hasRole('ORGANIZER')) window.location.href = 'organizer-dashboard.html';
+        else window.location.href = '../index.html';
+      }
+    }, 500);
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Log in'; }
+
+    const msg = (err.message || '').toLowerCase();
+    const isUnverified = err.status === 403 || 
+                         msg.includes('not verified') || 
+                         msg.includes('unverified') || 
+                         msg.includes('verify your email') ||
+                         msg.includes('email is not verified');
+
+    if (isUnverified) {
+      esToast('Your email is not verified yet. Please enter the code sent to your email.', 'error');
+      EsOtpModal.open({
+        email: email,
+        title: 'Verify Your Email',
+        message: "Your email address has not been verified yet. We've sent a 6-digit code to your inbox.",
+        onSuccess: (data) => {
+          esToast('Email verified successfully! Welcome back.');
+          const redirectUrl = urlParams.get('redirect');
+          setTimeout(() => {
+            if (redirectUrl) {
+              window.location.href = decodeURIComponent(redirectUrl);
+            } else {
+              if (EsAuthStore.hasRole('ADMIN')) window.location.href = 'admin-dashboard.html';
+              else if (EsAuthStore.hasRole('ORGANIZER')) window.location.href = 'organizer-dashboard.html';
+              else window.location.href = '../index.html';
+            }
+          }, 500);
+        },
+        onEditEmail: () => {
+          if (emailInput) emailInput.focus();
+        }
+      });
+      return;
+    }
+
+    esToast(err.message || 'Login failed. Check your email and password.', 'error');
+  }
+});
+
+// -------------------------------------------------------------
+// Forgot Password Flow
+// -------------------------------------------------------------
+const fpModalEl = document.getElementById('forgotPasswordModal');
+const fpModal = new bootstrap.Modal(fpModalEl);
+const fpStep1 = document.getElementById('fpStep1');
+const fpStep2 = document.getElementById('fpStep2');
+const fpEmailInput = document.getElementById('fpEmail');
+const fpSendOtpBtn = document.getElementById('fpSendOtpBtn');
+const fpSubmitResetBtn = document.getElementById('fpSubmitResetBtn');
+let activeResetEmail = '';
+
+// Init password toggles inside forgot password modal
+EsValidation.initPasswordToggles(document.getElementById('fpResetForm'));
+
+document.getElementById('forgotPasswordBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  // Pre-fill email from login form if already entered
+  const loginEmailVal = document.getElementById('loginEmail')?.value?.trim();
+  if (loginEmailVal) fpEmailInput.value = loginEmailVal;
+
+  fpStep1.style.display = 'block';
+  fpStep2.style.display = 'none';
+  fpModal.show();
+});
+
+document.getElementById('fpBackBtn').addEventListener('click', () => {
+  fpStep2.style.display = 'none';
+  fpStep1.style.display = 'block';
+});
+
+// Step 1: Request Password Reset OTP
+document.getElementById('fpRequestForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = fpEmailInput.value.trim();
+
+  if (!email || !/\S+@\S+\.\S+/.test(email)) {
+    esToast('Please enter a valid email address.', 'error');
+    fpEmailInput.focus();
+    return;
+  }
+
+  fpSendOtpBtn.disabled = true;
+  fpSendOtpBtn.textContent = 'Sending code...';
+
+  try {
+    await AuthAPI.forgotPassword(email);
+    activeResetEmail = email;
+    document.getElementById('fpTargetEmailDisplay').textContent = email;
+    esToast('Reset code sent to your email!');
+
+    fpStep1.style.display = 'none';
+    fpStep2.style.display = 'block';
+    document.getElementById('fpOtp').focus();
+  } catch (err) {
+    esToast(err.message || 'Failed to send reset code. Please check your email.', 'error');
+  } finally {
+    fpSendOtpBtn.disabled = false;
+    fpSendOtpBtn.textContent = 'Send Reset Code';
+  }
+});
+
+// Step 2: Submit OTP and New Password
+document.getElementById('fpResetForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const otp = document.getElementById('fpOtp').value.trim();
+  const newPassword = document.getElementById('fpNewPassword').value;
+  const confirmPassword = document.getElementById('fpConfirmPassword').value;
+
+  if (!/^\d{6}$/.test(otp)) {
+    esToast('Please enter the 6-digit code sent to your email.', 'error');
+    document.getElementById('fpOtp').focus();
+    return;
+  }
+
+  if (!newPassword || newPassword.length < 6) {
+    esToast('New password must be at least 6 characters.', 'error');
+    document.getElementById('fpNewPassword').focus();
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    esToast('Passwords do not match.', 'error');
+    document.getElementById('fpConfirmPassword').focus();
+    return;
+  }
+
+  fpSubmitResetBtn.disabled = true;
+  fpSubmitResetBtn.textContent = 'Resetting password...';
+
+  try {
+    await AuthAPI.resetPassword({
+      email: activeResetEmail,
+      otp: otp,
+      newPassword: newPassword
+    });
+
+    esToast('Password reset successfully! You can now log in.', 'success');
+    fpModal.hide();
+
+    // Auto fill and focus login password
+    document.getElementById('loginEmail').value = activeResetEmail;
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginPassword').focus();
+  } catch (err) {
+    esToast(err.message || 'Failed to reset password. Please check your code.', 'error');
+  } finally {
+    fpSubmitResetBtn.disabled = false;
+    fpSubmitResetBtn.textContent = 'Reset Password';
+  }
+});
+</script>
+
+</body>
+</html>

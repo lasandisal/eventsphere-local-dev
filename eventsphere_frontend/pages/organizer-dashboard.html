@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organizer Dashboard — EventSphere</title>
+<link rel="icon" type="image/png" href="../assets/images/logo.png">
+<link rel="shortcut icon" href="../favicon.ico">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/dashboard.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body data-page="organizer">
+
+<nav class="es-navbar">
+  <div class="container-narrow d-flex align-items-center justify-content-between">
+    <a href="../index.html" class="brand text-decoration-none d-flex align-items-center"><img src="../assets/images/logo.png" alt="EventSphere Logo" class="brand-logo me-2">EventSphere</a>
+    <span class="pill-badge pill-lavender">Organizer</span>
+    <div id="navAuthSlot" class="d-flex align-items-center gap-2"></div>
+  </div>
+</nav>
+
+<div class="dash-shell">
+  <aside class="es-sidebar">
+    <div class="side-link active" data-section="dashboard"><i class="bi bi-grid"></i> Dashboard</div>
+    <div class="side-link" data-section="myevents"><i class="bi bi-calendar-event"></i> My Events</div>
+    <a class="side-link" href="create-event.html"><i class="bi bi-plus-circle"></i> Create Event</a>
+    <div class="side-link" data-section="bookings"><i class="bi bi-ticket-perforated"></i> Bookings</div>
+    <div class="side-link" data-section="attendees"><i class="bi bi-people"></i> Attendees</div>
+    <a class="side-link" href="check-in.html"><i class="bi bi-qr-code-scan"></i> Check-in</a>
+    <div class="side-link" data-section="profile"><i class="bi bi-person-circle"></i> Profile</div>
+  </aside>
+
+  <main class="dash-main">
+
+    <!-- Dashboard section -->
+    <section id="sec-dashboard">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="mb-0">Organizer Performance & Analytics</h2>
+          <p class="text-muted-soft small mb-0">Track your event bookings, ticket velocity, and income in real-time</p>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <button class="btn btn-quiet btn-sm" onclick="loadOrganizerOverview()">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+          </button>
+          <a href="create-event.html" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> Create Event
+          </a>
+        </div>
+      </div>
+
+      <!-- Key Metrics Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="stat-icon mb-2" style="background:var(--blush-soft);">📅</div>
+            <div class="label">Total Events</div>
+            <div class="value" id="orgTotalEvents">0</div>
+            <div class="text-muted-soft small mt-1">Hosted on platform</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="stat-icon mb-2" style="background:var(--sage-soft);">🎟️</div>
+            <div class="label">Tickets Sold</div>
+            <div class="value" id="orgTotalTickets">0</div>
+            <div class="text-muted-soft small mt-1">Across all events</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="stat-icon mb-2" style="background:var(--powder-blue-soft);">💰</div>
+            <div class="label">Gross Revenue</div>
+            <div class="value" id="orgTotalRevenue">LKR 0</div>
+            <div class="text-muted-soft small mt-1">Total ticket revenue</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="stat-icon mb-2" style="background:var(--beige);">⏰</div>
+            <div class="label">Upcoming Events</div>
+            <div class="value" id="orgUpcomingEvents">0</div>
+            <div class="text-muted-soft small mt-1">Scheduled ahead</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-lg-8">
+          <div class="chart-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <div class="chart-title">Revenue & Sales Velocity</div>
+              <span class="pill-badge pill-beige">Last 6 Months</span>
+            </div>
+            <div class="text-muted-soft small mb-3">Monthly gross ticket sales trajectory</div>
+            <div class="bar-chart" id="orgRevenueChartBars">
+              <div class="text-center text-muted-soft py-4 w-100"><i class="bi bi-arrow-repeat spin"></i> Loading sales trajectory...</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="chart-card h-100 text-center d-flex flex-column justify-content-between">
+            <div>
+              <div class="chart-title">Ticket Type Mix</div>
+              <div class="text-muted-soft small">Sales distribution by ticket tiers</div>
+            </div>
+            <div class="donut my-3 mx-auto"><div class="donut-center" id="orgDonutCenter">0%</div></div>
+            <div class="d-flex flex-wrap justify-content-center gap-2" id="orgAttendanceMixLegend" style="font-size:0.78rem;">
+              <span class="text-muted-soft small">Loading mix...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Events Table Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="table-card p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+              <div>
+                <h5 class="fw-bold mb-0 text-white"><i class="bi bi-fire me-1 text-danger"></i> Top Performing Events</h5>
+                <span class="text-muted-soft small">Your events ranked by ticket sales and revenue</span>
+              </div>
+              <button class="btn btn-quiet btn-sm" onclick="switchOrganizerSection('myevents')">View All</button>
+            </div>
+            <div class="table-responsive">
+              <table class="es-table mb-0">
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Tickets Sold</th>
+                    <th>Gross Revenue</th>
+                  </tr>
+                </thead>
+                <tbody id="orgTopEventsBody">
+                  <tr><td colspan="4" class="text-center text-muted-soft py-3"><i class="bi bi-arrow-repeat spin"></i> Loading sales data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- My Events section -->
+    <section id="sec-myevents" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="mb-0">My Events</h2>
+          <p class="text-muted-soft small mb-0">Manage all your hosted events, ticket tiers, and active sales</p>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <input class="form-control" id="myEventsSearchInput" placeholder="Search events..." style="max-width:220px;">
+          <a href="create-event.html" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i> Create Event</a>
+        </div>
+      </div>
+      <div class="table-card">
+        <table class="es-table">
+          <thead><tr><th>Event</th><th>Date</th><th>Category</th><th>Sold</th><th>Available</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+          <tbody id="myEventsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Bookings section -->
+    <section id="sec-bookings" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="mb-0">Bookings</h2>
+          <p class="text-muted-soft small mb-0">Orders placed across your active and past events</p>
+        </div>
+        <input class="form-control" id="orgBookingSearchInput" placeholder="Search bookings..." style="max-width:240px;">
+      </div>
+      <div class="table-card">
+        <table class="es-table">
+          <thead><tr><th>Booking Ref</th><th>Event</th><th>Attendee</th><th>Tickets</th><th>Total Paid</th><th>Status</th></tr></thead>
+          <tbody id="bookingsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Attendees section -->
+    <section id="sec-attendees" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="mb-0">Attendees</h2>
+          <p class="text-muted-soft small mb-0">Full guest list and ticket verification status</p>
+        </div>
+        <input class="form-control" id="orgAttendeeSearchInput" placeholder="Search attendees..." style="max-width:240px;">
+      </div>
+      <div class="table-card">
+        <table class="es-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Event</th><th>Ticket Type</th><th>Ticket ID</th><th>Booking</th><th>Check-in</th></tr></thead>
+          <tbody id="attendeesBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Profile section -->
+    <section id="sec-profile" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="mb-0">Organizer Profile & Settings</h2>
+          <p class="text-muted-soft small mb-0">Manage your hosting identity, business credentials, and account security</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="status-badge status-confirmed" id="profStatusBadge"><i class="bi bi-shield-check me-1"></i> Verified Organizer</span>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- Card 1: Organizer Brand & KYC Profile -->
+        <div class="col-lg-7">
+          <div class="filter-bar p-4 h-100">
+            <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+              <i class="bi bi-building fs-4 text-primary"></i>
+              <h5 class="fw-bold mb-0 text-white">Business & Identity Details</h5>
+            </div>
+            
+            <form id="orgProfileForm" class="d-flex flex-column gap-3">
+              <div>
+                <label class="form-label fw-semibold small text-white">Business / Brand Name <span class="text-danger">*</span></label>
+                <input class="form-control" name="businessName" id="profInputBusiness" required placeholder="e.g. Zelo Events, TechLK">
+              </div>
+
+              <div class="row g-3">
+                <div class="col-sm-6">
+                  <label class="form-label fw-semibold small text-white">Applicant Legal Name <span class="text-danger">*</span></label>
+                  <input class="form-control" name="applicantName" id="profInputName" required placeholder="Full Name">
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label fw-semibold small text-white">Phone Number <span class="text-danger">*</span></label>
+                  <input class="form-control" type="tel" name="applicantPhone" id="profInputPhone" required placeholder="e.g. 0771234567">
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label fw-semibold small text-white">Account Email</label>
+                <input class="form-control bg-light" name="applicantEmail" id="profInputEmail" readonly title="Account email is tied to your login credentials">
+                <small class="text-muted-soft" style="font-size:0.78rem;">Email is associated with your login account.</small>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-sm-6">
+                  <label class="form-label fw-semibold small text-white">NIC / Passport Number <span class="text-danger">*</span></label>
+                  <input class="form-control" name="nicOrPassportNumber" id="profInputNic" required placeholder="Identity number">
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label fw-semibold small text-white">Business Registration (BRN)</label>
+                  <input class="form-control" name="businessRegistrationNumber" id="profInputRegNo" placeholder="BRN (optional)">
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label fw-semibold small text-white">About Your Events / Bio</label>
+                <textarea class="form-control" name="bio" id="profInputBio" rows="3" placeholder="Tell attendees and admins about your experience and event types..."></textarea>
+              </div>
+
+              <div class="pt-2">
+                <button type="submit" class="btn btn-primary px-4" id="saveProfileBtn">
+                  <i class="bi bi-check2 me-1"></i> Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Card 2: Security & Password Management -->
+        <div class="col-lg-5">
+          <div class="filter-bar p-4 h-100">
+            <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+              <i class="bi bi-shield-lock fs-4 text-primary"></i>
+              <h5 class="fw-bold mb-0 text-white">Account Security</h5>
+            </div>
+
+            <form id="changePasswordForm" class="d-flex flex-column gap-3">
+              <div>
+                <label class="form-label fw-semibold small text-white">Current Password <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input class="form-control" type="password" name="currentPassword" id="currentPasswordInput" required placeholder="Enter current password">
+                  <button class="btn btn-outline-soft" type="button" onclick="togglePasswordVisibility('currentPasswordInput', this)">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label fw-semibold small text-white">New Password <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input class="form-control" type="password" name="newPassword" id="newPasswordInput" required minlength="6" placeholder="At least 6 characters">
+                  <button class="btn btn-outline-soft" type="button" onclick="togglePasswordVisibility('newPasswordInput', this)">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label fw-semibold small text-white">Confirm New Password <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input class="form-control" type="password" name="confirmPassword" id="confirmPasswordInput" required minlength="6" placeholder="Repeat new password">
+                  <button class="btn btn-outline-soft" type="button" onclick="togglePasswordVisibility('confirmPasswordInput', this)">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="alert alert-light border small text-muted-soft mb-0 py-2">
+                <i class="bi bi-info-circle me-1 text-primary"></i> Passwords must be at least 6 characters long and match.
+              </div>
+
+              <div class="pt-2">
+                <button type="submit" class="btn btn-primary px-4" id="savePasswordBtn">
+                  <i class="bi bi-key me-1"></i> Update Password
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/env.js"></script>
+<script src="../js/api/config.js"></script>
+<script src="../js/api/auth.js"></script>
+<script src="../js/api/events.js"></script>
+<script src="../js/api/organizer.js"></script>
+<script src="../js/utils/icons.js"></script>
+<script src="../js/utils/toast.js"></script>
+<script src="../js/utils/nav.js"></script>
+
+<!-- Modular Organizer Scripts -->
+<script src="../js/organizer/organizer-events.js"></script>
+<script src="../js/organizer/organizer-bookings.js"></script>
+<script src="../js/organizer/organizer-attendees.js"></script>
+<script src="../js/organizer/organizer-profile.js"></script>
+<script src="../js/organizer/organizer-analytics.js"></script>
+<script src="../js/organizer/organizer-dashboard.js"></script>
+</body>
+</html>

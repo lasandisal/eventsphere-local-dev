@@ -1,0 +1,9 @@
+### Create Category (Admin Only)
+POST {{host}}/api/v1/admin/categories
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Technology & Innovation",
+  "description": "Tech conferences, hackathons, and workshops"
+}

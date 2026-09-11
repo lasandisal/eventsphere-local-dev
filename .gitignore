@@ -1,0 +1,45 @@
+# =============================================================================
+# EventSphere Monorepo Git Ignore Rules
+# =============================================================================
+
+# --- Environment Variables & Secrets ---
+.env
+.env.*
+.env.local
+.env.backup*
+!.env.example
+http-client.private.env.json
+
+# --- Backend Maven Build Outputs ---
+eventsphere_backend/target/
+target/
+*.class
+
+# --- Frontend Deploy & Temp Folders ---
+eventsphere_frontend/.vercel/
+.vercel/
+*.zip
+__pycache__/
+*.py[cod]
+
+# --- IDE & Editor Settings ---
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+.apt_generated
+.factorypath
+.springBeans
+.sts4-cache
+
+# --- OS Specific Files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs ---
+*.log

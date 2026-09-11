@@ -1,0 +1,13 @@
+# Local environment files (contains developer overrides)
+.env
+
+# OS & Archive files
+.DS_Store
+# Python
+__pycache__/
+*.py[cod]
+
+# Generated archives
+*.zip
+.vercel
+.env*

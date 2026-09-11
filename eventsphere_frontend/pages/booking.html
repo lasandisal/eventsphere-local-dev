@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book Tickets — EventSphere</title>
+<link rel="icon" type="image/png" href="../assets/images/logo.png">
+<link rel="shortcut icon" href="../favicon.ico">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body data-page="events">
+
+<nav class="es-navbar">
+  <div class="container-narrow d-flex align-items-center justify-content-between">
+    <a href="../index.html" class="brand text-decoration-none d-flex align-items-center"><img src="../assets/images/logo.png" alt="EventSphere Logo" class="brand-logo me-2">EventSphere</a>
+    <div id="navAuthSlot" class="d-flex align-items-center gap-2"></div>
+  </div>
+</nav>
+
+<section class="section-sm">
+  <div class="container-narrow">
+    <div class="step-indicator" id="stepIndicator">
+      <div class="step active" data-step="1"><div class="circle">1</div><div class="label">Tickets</div></div>
+      <div class="connector"></div>
+      <div class="step" data-step="2"><div class="circle">2</div><div class="label">Attendees</div></div>
+      <div class="connector"></div>
+      <div class="step" data-step="3"><div class="circle">3</div><div class="label">Review</div></div>
+      <div class="connector"></div>
+      <div class="step" data-step="4"><div class="circle">4</div><div class="label">Payment</div></div>
+      <div class="connector"></div>
+      <div class="step" data-step="5"><div class="circle">5</div><div class="label">Confirmation</div></div>
+    </div>
+
+    <div class="row g-5">
+      <div class="col-lg-7">
+
+        <!-- Step 1: Tickets -->
+        <div class="booking-step" data-step-panel="1">
+          <h3 class="mb-3 text-white">Your selected tickets</h3>
+          <div id="ticketsRecap" class="d-flex flex-column gap-3 mb-4"></div>
+          <button class="btn btn-primary" onclick="goStep(2)">Continue</button>
+        </div>
+
+        <!-- Step 2: Attendees -->
+        <div class="booking-step d-none" data-step-panel="2">
+          <h3 class="mb-2 text-white">Attendee Details</h3>
+          <p class="text-muted-soft mb-4" style="font-size: 0.9rem;">
+            The primary booker will receive the full order receipt and all QR tickets. Individual guest passes will be sent directly to each guest's email.
+          </p>
+          <form id="attendeeForm" class="d-flex flex-column gap-3"></form>
+          <div class="d-flex gap-2 mt-4">
+            <button class="btn btn-outline-soft" onclick="goStep(1)">Back</button>
+            <button class="btn btn-primary" onclick="collectAttendees()">Continue</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Review -->
+        <div class="booking-step d-none" data-step-panel="3">
+          <h3 class="mb-2 text-white">Review Your Booking</h3>
+          <p class="text-muted-soft mb-4" style="font-size: 0.9rem;">Please confirm attendee and ticket dispatch details before continuing to secure payment.</p>
+          <div id="reviewList" class="d-flex flex-column gap-3 mb-4"></div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-soft" onclick="goStep(2)">Back</button>
+            <button class="btn btn-primary" id="btnConfirmBooking" onclick="submitBooking()">Confirm &amp; Continue to Payment</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Payment -->
+        <div class="booking-step d-none" data-step-panel="4">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h3 class="mb-0 text-white">Payment</h3>
+            <div id="holdTimerBadge" class="d-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35);">
+              <i class="bi bi-stopwatch text-warning"></i>
+              <span class="text-white-50 small">Hold expires in:</span>
+              <span id="holdCountdown" class="fw-bold font-monospace text-warning">10:00</span>
+            </div>
+          </div>
+
+          <div class="p-3 mb-4 d-flex align-items-center gap-3 rounded-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px);">
+            <i class="bi bi-shield-lock-fill text-success fs-3"></i>
+            <div>
+              <div class="fw-semibold text-white">Secure checkout via PayHere Sandbox</div>
+              <div class="text-muted-soft" style="font-size:0.82rem;">Your payment is processed securely via sandbox gateway.</div>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-3 mb-4" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);">
+            <div class="d-flex justify-content-between mb-2"><span class="text-muted-soft">Event</span><b class="text-white" id="paySummaryEvent">—</b></div>
+            <div class="d-flex justify-content-between mb-2"><span class="text-muted-soft">Tickets</span><b class="text-white" id="paySummaryCount">—</b></div>
+            <div class="d-flex justify-content-between"><span class="text-muted-soft">Total Amount</span><b style="color: var(--neon-rose); font-size:1.1rem;" id="paySummaryTotal">—</b></div>
+          </div>
+          
+          <div id="paymentActions">
+            <button class="btn btn-primary btn-lg w-100 mb-2" id="btnPayWithPayHere" onclick="startPayment()">
+              <i class="bi bi-lock-fill me-1"></i> Pay Securely with PayHere
+            </button>
+
+            <button class="btn btn-outline-danger w-100 mb-3" id="btnCancelHold" onclick="cancelCurrentBooking()">
+              <i class="bi bi-x-circle me-1"></i> Cancel Reservation &amp; Release Tickets
+            </button>
+
+            <div class="text-center mt-2 mb-2">
+              <button type="button" class="btn btn-link btn-sm text-muted text-decoration-none" onclick="simulateSandboxPayment()" style="font-size:0.78rem;">
+                <i class="bi bi-lightning-charge me-1"></i> Sandbox Test: Simulate Successful Webhook
+              </button>
+            </div>
+          </div>
+
+          <div id="paymentStatusBox" class="mt-3 text-center d-none p-3 rounded-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);">
+            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+            <span class="text-white fw-semibold small">Verifying payment &amp; generating your digital QR passes...</span>
+          </div>
+
+          <!-- Payment Gateway Error Box -->
+          <div id="paymentErrorBox" class="mt-3 p-3 rounded-3 d-none" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35);">
+            <div class="d-flex align-items-start gap-2 text-danger mb-2">
+              <i class="bi bi-exclamation-octagon-fill fs-5"></i>
+              <div>
+                <strong class="d-block text-white">Payment Gateway Issue</strong>
+                <span class="small text-white-50" id="paymentErrorMessage">Could not initiate checkout.</span>
+              </div>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+              <button class="btn btn-sm btn-outline-light flex-fill" onclick="startPayment()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Retry PayHere
+              </button>
+              <button class="btn btn-sm btn-danger flex-fill" onclick="cancelCurrentBooking()">
+                <i class="bi bi-x-circle me-1"></i> Cancel &amp; Release Tickets
+              </button>
+            </div>
+          </div>
+
+          <!-- Hold Expired Box -->
+          <div id="holdExpiredBox" class="mt-3 p-3 rounded-3 d-none text-center" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35);">
+            <i class="bi bi-clock-history text-danger fs-1 mb-2 d-block"></i>
+            <h5 class="text-white mb-1">Reservation Hold Expired</h5>
+            <p class="text-white-50 small mb-3">Your 10-minute ticket reservation window has expired. The tickets have been released back to the event pool to prevent overselling.</p>
+            <a href="events.html" class="btn btn-primary btn-sm">Find Events</a>
+          </div>
+        </div>
+
+        <!-- Step 5: Confirmation -->
+        <div class="booking-step d-none text-center" data-step-panel="5">
+          <div class="p-5 rounded-4" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(16px);">
+            <div class="mb-3" style="font-size:3.5rem; line-height: 1; color: #34D399;">✓</div>
+            <h2 class="mb-2 text-white fw-bold">You're all set!</h2>
+            <p class="text-muted-soft mb-4" style="font-size: 1rem;">Your booking is <b class="text-success">CONFIRMED</b> and digital QR admission passes have been dispatched to the attendee emails.</p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+              <a href="#" id="viewTicketBtn" class="btn btn-primary btn-lg"><i class="bi bi-qr-code me-1"></i> View My Ticket</a>
+              <a href="my-bookings.html" class="btn btn-outline-soft btn-lg">My Bookings</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-lg-5">
+        <div class="summary-card" style="background: rgba(18, 22, 34, 0.85); backdrop-filter: blur(18px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: var(--radius-lg); padding: 2rem;">
+          <h3 class="mb-3 text-white">Booking Summary</h3>
+          <div id="summaryLines"></div>
+          <div class="total-row mt-3 pt-3 border-top border-white-10 d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-white fs-5">Total</span>
+            <span id="summaryTotal" class="fw-bold fs-4" style="color: var(--neon-rose);">LKR 0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/env.js"></script>
+<script src="../js/api/config.js"></script>
+<script src="../js/api/auth.js"></script>
+<script src="../js/api/events.js"></script>
+<script src="../js/api/bookings.js"></script>
+<script src="../js/utils/md5.js"></script>
+<script src="../js/api/payments.js"></script>
+<script src="../js/utils/icons.js"></script>
+<script src="../js/utils/toast.js"></script>
+<script src="../js/utils/nav.js"></script>
+<script>
+const brandSp = document.getElementById('brandSparkle');
+if (brandSp) brandSp.innerHTML = EsIcons.sparkle;
+
+if (!EsAuthStore.isLoggedIn()) {
+  esToast('Please log in to continue booking', 'error');
+  const returnTo = 'booking.html' + window.location.search;
+  setTimeout(() => window.location.href = 'login.html?redirect=' + encodeURIComponent(returnTo), 800);
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const eventId = urlParams.get('eventId');
+const bookingIdParam = urlParams.get('bookingId');
+const pending = JSON.parse(sessionStorage.getItem('es_pending_booking') || 'null');
+let items = pending ? pending.items : [];
+let eventTitle = 'Event Booking';
+let pollInterval = null;
+let holdTimerInterval = null;
+let currentBookingId = bookingIdParam ? Number(bookingIdParam) : null;
+
+// Redirect back if no pending booking items exist and no bookingId in URL
+if (!items.length && !bookingIdParam) {
+  esToast('No tickets selected. Redirecting to discovery...', 'error');
+  setTimeout(() => window.location.href = 'events.html', 1200);
+}
+
+function money(n) { return 'LKR ' + (n ? Number(n).toLocaleString() : '0'); }
+
+function renderTicketsRecap() {
+  document.getElementById('ticketsRecap').innerHTML = items.map(i => `
+    <div class="ticket-type-card p-3 rounded-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1);">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="tt-name" style="color: var(--neon-rose); font-weight:700; font-size:0.95rem;">${i.name}</div>
+          <div class="text-muted-soft" style="font-size:0.85rem;">Quantity: ${i.quantity}</div>
+        </div>
+        <div class="tt-price text-white fw-bold fs-5">${money(i.price * i.quantity)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderSummary() {
+  const lines = document.getElementById('summaryLines');
+  lines.innerHTML = items.map(i => `
+    <div class="line-item d-flex justify-content-between py-2 text-muted-soft" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+      <span class="text-white-50">${i.quantity} × ${i.name}</span>
+      <span class="text-white fw-semibold">${money(i.price * i.quantity)}</span>
+    </div>`).join('');
+  const total = items.reduce((s, i) => s + (i.price * i.quantity), 0);
+  document.getElementById('summaryTotal').textContent = money(total);
+}
+
+function renderAttendeeForm() {
+  const currentUser = EsAuthStore.getUser() || {};
+  let html = '';
+  let n = 1;
+
+  items.forEach(i => {
+    for (let q = 0; q < i.quantity; q++) {
+      const isPrimary = (n === 1);
+      const defaultName = isPrimary ? (currentUser.fullName || '') : '';
+      const defaultEmail = isPrimary ? (currentUser.email || '') : '';
+
+      html += `
+      <div class="p-4 mb-3 rounded-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px);">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <span class="fw-bold text-white fs-6">Attendee ${n}</span>
+            <span class="badge" style="background: rgba(255, 46, 116, 0.15); color: var(--neon-rose); border: 1px solid rgba(255, 46, 116, 0.3); font-size:0.75rem;">${i.name}</span>
+          </div>
+          ${isPrimary 
+            ? '<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); font-size:0.75rem; padding: 0.35rem 0.65rem;">Primary Booker &amp; Billing</span>' 
+            : '<span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #A78BFA; border: 1px solid rgba(139, 92, 246, 0.3); font-size:0.75rem; padding: 0.35rem 0.65rem;">Guest Ticket</span>'}
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label text-muted-soft small mb-1">Full Name</label>
+            <input required class="form-control" name="name-${n}" value="${defaultName}" placeholder="Attendee full name">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-muted-soft small mb-1">Email Address</label>
+            <input required type="email" class="form-control" name="email-${n}" value="${defaultEmail}" 
+                   placeholder="Ticket pass delivery email">
+          </div>
+        </div>
+      </div>`;
+      n++;
+    }
+  });
+  document.getElementById('attendeeForm').innerHTML = html;
+}
+
+let attendees = [];
+function collectAttendees() {
+  const form = document.getElementById('attendeeForm');
+  if (!form.reportValidity()) return;
+  const fd = new FormData(form);
+  attendees = [];
+  let n = 1;
+  items.forEach(i => {
+    for (let q = 0; q < i.quantity; q++) {
+      attendees.push({ 
+        ticketTypeId: i.ticketTypeId, 
+        ticket: i.name, 
+        name: fd.get(`name-${n}`).trim(), 
+        email: fd.get(`email-${n}`).trim(),
+        isPrimary: (n === 1)
+      });
+      n++;
+    }
+  });
+  renderReview();
+  goStep(3);
+}
+
+function renderReview() {
+  document.getElementById('reviewList').innerHTML = attendees.map((a, idx) => `
+    <div class="p-3 mb-2 rounded-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px);">
+      <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <span class="fw-bold text-white fs-6">${a.name}</span>
+          <span class="badge" style="background: rgba(255, 46, 116, 0.15); color: var(--neon-rose); border: 1px solid rgba(255, 46, 116, 0.3); font-size:0.75rem; padding: 0.25rem 0.5rem;">${a.ticket}</span>
+        </div>
+        ${a.isPrimary 
+          ? '<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); font-size:0.75rem; padding: 0.35rem 0.65rem;">Receives Master Receipt &amp; Passes</span>' 
+          : '<span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #A78BFA; border: 1px solid rgba(139, 92, 246, 0.3); font-size:0.75rem; padding: 0.35rem 0.65rem;">Receives Guest Pass</span>'}
+      </div>
+      <div class="text-muted-soft small d-flex align-items-center gap-1">
+        <i class="bi bi-envelope text-white-50"></i>
+        <span>${a.email}</span>
+      </div>
+    </div>`).join('');
+}
+
+function goStep(step) {
+  document.querySelectorAll('.booking-step').forEach(p => p.classList.add('d-none'));
+  const targetStep = document.querySelector(`[data-step-panel="${step}"]`);
+  if (targetStep) targetStep.classList.remove('d-none');
+  
+  document.querySelectorAll('.step-indicator .step').forEach(s => {
+    const n = Number(s.getAttribute('data-step'));
+    s.classList.toggle('active', n === step);
+    s.classList.toggle('done', n < step);
+  });
+
+  if (step === 4) {
+    startHoldCountdown(600);
+  }
+
+  window.scrollTo({ top: 200, behavior: 'smooth' });
+}
+
+function startHoldCountdown(durationSeconds = 600) {
+  if (holdTimerInterval) clearInterval(holdTimerInterval);
+  let remaining = durationSeconds;
+  const timerEl = document.getElementById('holdCountdown');
+  
+  function updateDisplay() {
+    const mins = Math.floor(remaining / 60);
+    const secs = remaining % 60;
+    if (timerEl) {
+      timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      if (remaining <= 60) {
+        timerEl.classList.remove('text-warning');
+        timerEl.classList.add('text-danger');
+      }
+    }
+    if (remaining <= 0) {
+      clearInterval(holdTimerInterval);
+      handleHoldExpired();
+    }
+    remaining--;
+  }
+
+  updateDisplay();
+  holdTimerInterval = setInterval(updateDisplay, 1000);
+}
+
+async function handleHoldExpired() {
+  if (pollInterval) clearInterval(pollInterval);
+  document.getElementById('paymentActions')?.classList.add('d-none');
+  document.getElementById('paymentStatusBox')?.classList.add('d-none');
+  document.getElementById('paymentErrorBox')?.classList.add('d-none');
+  document.getElementById('holdExpiredBox')?.classList.remove('d-none');
+  
+  if (currentBookingId) {
+    try {
+      await BookingsAPI.cancel(currentBookingId);
+    } catch (e) {
+      console.warn('Auto-cancel on hold expiry error:', e);
+    }
+  }
+  sessionStorage.removeItem('es_pending_booking');
+}
+
+async function cancelCurrentBooking() {
+  if (!currentBookingId) {
+    esToast('No active reservation found to cancel', 'error');
+    return;
+  }
+
+  const confirmed = confirm('Are you sure you want to cancel this reservation? The held tickets will be immediately released back to other attendees.');
+  if (!confirmed) return;
+
+  const btnCancel = document.getElementById('btnCancelHold');
+  const origText = btnCancel ? btnCancel.innerHTML : '';
+  if (btnCancel) {
+    btnCancel.disabled = true;
+    btnCancel.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Releasing tickets...';
+  }
+
+  try {
+    if (holdTimerInterval) clearInterval(holdTimerInterval);
+    if (pollInterval) clearInterval(pollInterval);
+
+    await BookingsAPI.cancel(currentBookingId);
+    sessionStorage.removeItem('es_pending_booking');
+    esToast('Reservation cancelled and tickets released', 'success');
+
+    setTimeout(() => {
+      if (eventId) {
+        window.location.href = `event-details.html?id=${eventId}`;
+      } else {
+        window.location.href = 'events.html';
+      }
+    }, 1000);
+  } catch (err) {
+    console.error('Cancel booking failed:', err);
+    esToast(err.message || 'Failed to cancel booking', 'error');
+    if (btnCancel) {
+      btnCancel.disabled = false;
+      btnCancel.innerHTML = origText;
+    }
+  }
+}
+
+async function submitBooking() {
+  const btn = document.getElementById('btnConfirmBooking');
+  if (btn && btn.disabled) return;
+  const origHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
+  }
+
+  const total = items.reduce((s, i) => s + (i.price * i.quantity), 0);
+  document.getElementById('paySummaryEvent').textContent = eventTitle;
+  document.getElementById('paySummaryCount').textContent = items.reduce((s, i) => s + i.quantity, 0) + ' tickets';
+  document.getElementById('paySummaryTotal').textContent = money(total);
+
+  try {
+    const payload = {
+      eventId: Number(eventId),
+      items: items.map(i => ({
+        ticketTypeId: Number(i.ticketTypeId),
+        quantity: i.quantity,
+        attendees: attendees.filter(a => String(a.ticketTypeId) === String(i.ticketTypeId)).map(a => ({ name: a.name, email: a.email }))
+      }))
+    };
+
+    const booking = await BookingsAPI.create(payload);
+    currentBookingId = booking?.id || booking?.bookingId || (booking?.data && (booking.data.id || booking.data.bookingId));
+    goStep(4);
+  } catch (e) {
+    console.error('Booking failed:', e);
+    esToast(e.message || 'Failed to create booking', 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
+}
+
+function checkBookingConfirmed() {
+  if (!currentBookingId) return;
+  if (pollInterval) clearInterval(pollInterval);
+
+  const statusBox = document.getElementById('paymentStatusBox');
+  if (statusBox) statusBox.classList.remove('d-none');
+
+  pollInterval = setInterval(async () => {
+    try {
+      const res = await BookingsAPI.getById(currentBookingId);
+      const b = res?.data || res;
+      if (b && b.status === 'CONFIRMED') {
+        clearInterval(pollInterval);
+        onBookingSuccess();
+      }
+    } catch (err) {
+      console.warn('Polling booking status error:', err);
+    }
+  }, 2500);
+}
+
+function onBookingSuccess() {
+  if (pollInterval) clearInterval(pollInterval);
+  if (holdTimerInterval) clearInterval(holdTimerInterval);
+  sessionStorage.removeItem('es_pending_booking');
+  document.getElementById('viewTicketBtn').href = `ticket.html?bookingId=${currentBookingId}`;
+  esToast('Payment Confirmed! Passes dispatched to emails.', 'success');
+  goStep(5);
+}
+
+async function simulateSandboxPayment() {
+  if (!currentBookingId) {
+    esToast('No active booking reference found', 'error');
+    return;
+  }
+
+  const total = items.reduce((s, i) => s + (i.price * i.quantity), 0);
+  try {
+    esToast('Sending simulated webhook callback...');
+    await PaymentsAPI.simulateNotify(currentBookingId, total);
+    
+    // Poll to confirm DB update
+    setTimeout(async () => {
+      try {
+        const res = await BookingsAPI.getById(currentBookingId);
+        const b = res?.data || res;
+        if (b && b.status === 'CONFIRMED') {
+          onBookingSuccess();
+        } else {
+          esToast('Webhook sent! Refreshing booking state...', 'info');
+          checkBookingConfirmed();
+        }
+      } catch (e) {
+        onBookingSuccess();
+      }
+    }, 1000);
+  } catch (err) {
+    console.error('Simulate failed:', err);
+    esToast('Simulate webhook error: ' + err.message, 'error');
+  }
+}
+
+async function startPayment() {
+  if (!currentBookingId) {
+    esToast('Invalid booking reference', 'error');
+    return;
+  }
+
+  const errBox = document.getElementById('paymentErrorBox');
+  if (errBox) errBox.classList.add('d-none');
+
+  try {
+    esToast('Initiating payment gateway...');
+    const data = await PaymentsAPI.initiate(currentBookingId);
+
+    if (!data) {
+      throw new Error('No response data received from payment service');
+    }
+
+    if (data.redirectUrl || data.checkoutUrl) {
+      window.open(data.redirectUrl || data.checkoutUrl, '_blank');
+      checkBookingConfirmed();
+      return;
+    }
+
+    const defaultPayhereUrl = window.ES_CONFIG?.PAYHERE_GATEWAY_URL || '';
+    const actionUrl = data.actionUrl || data.payhereUrl || defaultPayhereUrl;
+
+    if (!actionUrl) {
+      throw new Error('Payment gateway URL is missing.');
+    }
+
+    const fields = {
+      merchant_id: data.merchantId || data.merchant_id,
+      return_url: data.returnUrl || data.return_url,
+      cancel_url: data.cancelUrl || data.cancel_url,
+      notify_url: data.notifyUrl || data.notify_url,
+      order_id: data.orderId || data.order_id || currentBookingId,
+      items: data.itemsDescription || data.items || data.itemTitle || 'Event Tickets',
+      currency: data.currency || 'LKR',
+      amount: data.amount,
+      first_name: data.firstName || data.first_name || 'Customer',
+      last_name: data.lastName || data.last_name || 'User',
+      email: data.email || 'customer@example.com',
+      phone: data.phone || '0771234567',
+      address: data.address || 'No. 1, Main Street',
+      city: data.city || 'Colombo',
+      country: data.country || 'Sri Lanka',
+      hash: data.hash
+    };
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = actionUrl;
+    form.target = '_blank';
+
+    Object.entries(fields).forEach(([key, val]) => {
+      if (val !== undefined && val !== null) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = val;
+        form.appendChild(input);
+      }
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+
+    // Start auto polling for confirmation
+    checkBookingConfirmed();
+
+  } catch (e) {
+    console.error('Payment Initiation Failed:', e);
+    if (errBox) {
+      const errMsg = document.getElementById('paymentErrorMessage');
+      if (errMsg) {
+        errMsg.textContent = e.message || 'Payment initiation failed. If unauthorized, verify login session and payment gateway credentials.';
+      }
+      errBox.classList.remove('d-none');
+    }
+    esToast(e.message || 'Could not initiate payment', 'error');
+  }
+}
+
+async function initBookingPage() {
+  if (bookingIdParam) {
+    try {
+      esToast('Loading existing reservation...', 'info');
+      const res = await BookingsAPI.getById(bookingIdParam);
+      const b = res?.data || res;
+      if (b) {
+        currentBookingId = b.id;
+        eventTitle = b.eventTitle || eventTitle;
+        const total = b.totalAmount || 0;
+        document.getElementById('paySummaryEvent').textContent = eventTitle;
+        document.getElementById('paySummaryCount').textContent = (b.items || []).reduce((s, i) => s + i.quantity, 0) + ' tickets';
+        document.getElementById('paySummaryTotal').textContent = money(total);
+        goStep(4);
+        return;
+      }
+    } catch (err) {
+      console.warn('Could not load booking by ID param:', err);
+    }
+  }
+
+  renderTicketsRecap();
+  renderSummary();
+  renderAttendeeForm();
+
+  if (eventId) {
+    try {
+      const ev = await EventsAPI.getById(eventId);
+      if (ev && ev.title) {
+        eventTitle = ev.title;
+      }
+    } catch (e) {
+      console.warn('Could not load event title from server:', e);
+    }
+  }
+}
+
+initBookingPage();
+</script>
+</body>
+</html>
